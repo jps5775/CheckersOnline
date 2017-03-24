@@ -15,7 +15,18 @@ public class CheckersOnline {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        GameController cntl = new GameController();
+        Board board = cntl.getBoard();
+        
+        cntl.movePiece(1, 2, GameController.D.DR);
+        cntl.movePiece(4, 5, GameController.D.UL);
+        cntl.movePiece(2, 3, GameController.D.DR);
+        cntl.movePiece(5, 6, GameController.D.UL);
+        
+        System.out.print(board.printBoard());
+        
+        System.out.println("Red: " + board.getNumRed());
+        System.out.println("Black: " + board.getNumBlack());
     }
     
 }

@@ -6,17 +6,38 @@
 package checkersonline;
 
 /**
- *
+ * A space on the game board that can be empty (0), occupied by a black piece
+ * (1), or occupied by a red piece (2).
  * @author JoeSema
  */
 public class Space {
-    private int piece;
     
-    public int getPiece(){
+    /**
+     * This enumeration defines the three different states that a Space can be
+     * in.
+     */
+    public enum Piece {
+        NONE, BLACK, RED
+    }
+    
+    /**
+     * The state of this space. An instance of the enum defined above
+     */
+    private Piece piece;
+    
+    public Space(Piece piece) {
+        this.piece = piece;
+    }
+    
+    public Space() {
+        this(Piece.NONE);
+    }
+    
+    public Piece getPiece(){
         return piece;
     }
     
-    public void setPiece(int piece){
+    public void setPiece(Piece piece){
         this.piece = piece;
     }
 }
