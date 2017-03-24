@@ -6,7 +6,7 @@
 package checkersonline;
 
 /**
- *
+ * Model that represents a checker board and the contents of it's spaces.
  * @author JoeSema
  */
 public class Board {
@@ -54,6 +54,14 @@ public class Board {
         return spaces[x][y];  
     }
     
+    /**
+     * Sets the space at (x,y) to the indicated piece. If (x,y) is not on the
+     * board, this method will throw an IllegalArgumentException to indicate
+     * that a glitch has occured.
+     * @param x X coordinate of the space to change.
+     * @param y Y coordinate of the space to change.
+     * @param piece The piece to place in the space.
+     */
     public void setSpace(int x, int y, Space.Piece piece){
         if (x < 0 || x > 8 || y < 0 || x > 8) {   // This should never happen
             throw new IllegalArgumentException(); // so throw an exception to
@@ -62,6 +70,9 @@ public class Board {
         spaces[x][y].setPiece(piece);
     }
     
+    /**
+     * @return A text representation of the game board and it's pieces.
+     */
     public String printBoard(){
         String board = "    0  1  2  3  4  5  6  7 \n"; // X coordinates
         
@@ -99,6 +110,9 @@ public class Board {
         return board;
     }
     
+    /**
+     * @return The number of red pieces left on the board.
+     */
     public int getNumRed(){
         int num = 0;
         
@@ -113,6 +127,9 @@ public class Board {
         return num;
     }
     
+    /**
+     * @return The number of black pieces left on the board.
+     */
     public int getNumBlack(){
         int num = 0;
         

@@ -6,8 +6,8 @@
 package checkersonline;
 
 /**
- * A space on the game board that can be empty (0), occupied by a black piece
- * (1), or occupied by a red piece (2).
+ * A space on the game board that can have no piece (NONE), be occupied by a
+ * black piece (BLACK), or be occupied by a red piece (RED).
  * @author JoeSema
  */
 public class Space {

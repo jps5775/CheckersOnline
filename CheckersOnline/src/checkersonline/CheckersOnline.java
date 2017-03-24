@@ -8,7 +8,7 @@ package checkersonline;
 import java.util.Scanner;
 
 /**
- *
+ * Plays a simplified checkers game in the command line.
  * @author bqb5176
  */
 public class CheckersOnline {

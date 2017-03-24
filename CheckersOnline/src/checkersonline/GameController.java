@@ -6,7 +6,7 @@
 package checkersonline;
 
 /**
- *
+ * Controls a checkers board.
  * @author JoeSema
  */
 public class GameController {
@@ -22,12 +22,16 @@ public class GameController {
         UL, UR, DL, DR
     }
     
-    private Board gameBoard;
+    private Board gameBoard;  // The game board.
     
     public GameController(){
         this.gameBoard = new Board();
     }
     
+    /**
+     * @return The winner of the game as either Space.Piece.RED or BLACK, or
+     * NONE if no one has won yet.
+     */
     public Space.Piece checkWinner(){
         Space.Piece winner = Space.Piece.NONE;
         
@@ -41,6 +45,13 @@ public class GameController {
         return winner;
     }
     
+    /**
+     * Tries to move the piece at (x,y) on the board in the indicated direction.
+     * @param x X coordinate of the piece to move
+     * @param y Y coordinate of the piece to move
+     * @param direction Direction to move the piece in
+     * @return true if the move was valid, false otherwise.
+     */
     public boolean movePiece(int x, int y, D direction){
         boolean success = false;
         Space current = gameBoard.getSpace(x, y);
@@ -111,6 +122,9 @@ public class GameController {
         return success;
     }
     
+    /**
+     * @return The game board.
+     */
     public Board getBoard() {
         return gameBoard;
     }
