@@ -77,8 +77,11 @@ public class GameController {
                 break;
         }
         
-        if (desired == null) { // Can't move this way because it's off the board
-            success = false;
+        if (current.getPiece() == Space.Piece.NONE) {
+            success = false;  // The space specified doesn't have a piece in it.
+        }
+        else if (desired == null) {
+            success = false;  // Can't move this way because it's off the board.
         }
         else {
             if (desired.getPiece() == current.getPiece()) { // Bro, same team.
