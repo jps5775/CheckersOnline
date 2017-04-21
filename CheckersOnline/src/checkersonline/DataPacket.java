@@ -32,7 +32,11 @@ public class DataPacket {
         String y = encodeValue("y", this.y);
         String status = encodeValue("status", this.status);
         String d = encodeValue("d", this.direction);
-        String board = encodeValue("board", this.board.encode());
+        String board = "";
+        
+        if (this.board != null) {
+            board = encodeValue("board", this.board.encode());
+        }
         
         return x + y + status + d + board;
     }
@@ -70,6 +74,10 @@ public class DataPacket {
     private static String getValueAsString(String encodedString, String name) {
         int start = encodedString.indexOf("<" + name +">") + name.length() + 2;
         int end = encodedString.indexOf("</" + name +">");
+        
+        if (start < 0 || end < 0) {
+            return null;
+        }
         
         return encodedString.substring(start, end);
     }

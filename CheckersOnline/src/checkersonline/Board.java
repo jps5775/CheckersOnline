@@ -185,6 +185,10 @@ public class Board {
         Board board = new Board(true);
         int cursor = 0;
         
+        if (s == null) {
+            return null;
+        }
+        
         try {
             while (cursor < s.length()) {
                 int end = s.indexOf(",", cursor);
