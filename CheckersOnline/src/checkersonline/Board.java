@@ -5,32 +5,43 @@
  */
 package checkersonline;
 
+import checkersonline.Space.Piece;
+
 /**
  * Model that represents a checker board and the contents of it's spaces.
  * @author JoeSema
  */
 public class Board {
-    Space[][] spaces = new Space[8][8];
+    private static final int X = 8;
+    private static final int Y = 8;
+    
+    Space[][] spaces = new Space[X][Y];
     
     public Board() {
+        this(false);
+    }
+    
+    public Board(boolean empty) {
         /* Initialize an empty board. */
-        for (int x = 0; x < 8; x++) {
-            for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < X; x++) {
+            for (int y = 0; y < Y; y++) {
                 spaces[x][y] = new Space();
             }
         }
         
-        /* Place the red pieces in the top three rows of the board */
-        for (int y = 0; y < 3; y++) {
-            for (int x = 1 - y % 2; x < 8; x += 2) {
-                spaces[x][y].setPiece(Space.Piece.RED);
+        if (!empty) {
+            /* Place the red pieces in the top three rows of the board */
+            for (int y = 0; y < 3; y++) {
+                for (int x = 1 - y % 2; x < 8; x += 2) {
+                    spaces[x][y].setPiece(Space.Piece.RED);
+                }
             }
-        }
-        
-        /* Place the black pieces in the bottom three rows of the board */
-        for (int y = 5; y < 8; y++) {
-            for (int x = 1 - y % 2; x < 8; x += 2) {
-                spaces[x][y].setPiece(Space.Piece.BLACK);
+
+            /* Place the black pieces in the bottom three rows of the board */
+            for (int y = 5; y < 8; y++) {
+                for (int x = 1 - y % 2; x < 8; x += 2) {
+                    spaces[x][y].setPiece(Space.Piece.BLACK);
+                }
             }
         }
     }
@@ -47,7 +58,7 @@ public class Board {
         We need to make sure that (x,y) is inside the board. If it isn't, return
         null to signify that it isn't.
         */
-        if (x < 0 || x > 8 || y < 0 || x > 8) {
+        if (x < 0 || x > X || y < 0 || y > Y) {
             return null;
         }
         
@@ -63,7 +74,7 @@ public class Board {
      * @param piece The piece to place in the space.
      */
     public void setSpace(int x, int y, Space.Piece piece){
-        if (x < 0 || x > 8 || y < 0 || x > 8) {   // This should never happen
+        if (x < 0 || x > X || y < 0 || y > Y) {   // This should never happen
             throw new IllegalArgumentException(); // so throw an exception to
         }                                         // signify a glitch.
         
@@ -80,11 +91,11 @@ public class Board {
         Creates representation of the board in a String. Each space looks like
         this: [ ], [B], [R] for empty, black, and red.
         */
-        for (int y = 0; y < 8; y++) {       // For each row...
+        for (int y = 0; y < Y; y++) {       // For each row...
             
             board += " " + Integer.toString(y) + " ";  // Output Y coordinate
             
-            for (int x = 0; x < 8; x++) {   // For each space in the row...
+            for (int x = 0; x < X; x++) {   // For each space in the row...
                 String space = "[";         // Starts a new space
                 
                 switch (spaces[x][y].getPiece()) {  // What's in the space?
@@ -116,8 +127,8 @@ public class Board {
     public int getNumRed(){
         int num = 0;
         
-        for (int y = 0; y < 8; y++) {
-            for (int x = 0; x < 8; x++) {
+        for (int y = 0; y < Y; y++) {
+            for (int x = 0; x < X; x++) {
                 if (spaces[x][y].getPiece() == Space.Piece.RED) {
                     num++;
                 }
@@ -133,8 +144,8 @@ public class Board {
     public int getNumBlack(){
         int num = 0;
         
-        for (int y = 0; y < 8; y++) {
-            for (int x = 0; x < 8; x++) {
+        for (int y = 0; y < Y; y++) {
+            for (int x = 0; x < X; x++) {
                 if (spaces[x][y].getPiece() == Space.Piece.BLACK) {
                     num++;
                 }
@@ -142,5 +153,60 @@ public class Board {
         }
         
         return num;
-    }    
+    }
+    
+    /**
+     * This function will encode this Board into a string that can be decoded
+     * by Board.decode()
+     * @return this Board encoded as a String
+     */
+    public String encode() {
+        String board = "";
+        
+        for (int x = 0; x < X; x++) {
+            for (int y = 0; y < Y; y++) {
+                Piece piece = spaces[x][y].getPiece();
+                
+                if (piece != Piece.NONE) {
+                    board += x + "," + y + "," + piece.name() + ";";
+                }
+            }
+        }
+        
+        return board;
+    }
+    
+    /**
+     * Decodes a Board from a String
+     * @param s
+     * @return 
+     */
+    public static Board decode(String s) {
+        Board board = new Board(true);
+        int cursor = 0;
+        
+        try {
+            while (cursor < s.length()) {
+                int end = s.indexOf(",", cursor);
+                int x = Integer.parseInt(s.substring(cursor, end));
+                cursor = end + 1;
+
+                end = s.indexOf(",", cursor);
+                int y = Integer.parseInt(s.substring(cursor, end));
+                cursor = end + 1;
+
+                end = s.indexOf(";", cursor);
+                Piece piece = Piece.valueOf(s.substring(cursor, end));
+                cursor = end + 1;
+
+                board.setSpace(x, y, piece);
+            }
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Encoded string is not properly formatted.");
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Encoded string is not properly formatted.");
+        }
+        
+        return board;
+    }
 }

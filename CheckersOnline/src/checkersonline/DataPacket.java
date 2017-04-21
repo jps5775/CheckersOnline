@@ -5,75 +5,73 @@
  */
 package checkersonline;
 
+import checkersonline.GameController.D;
+
 /**
  *
  * @author bqb5176
  */
 public class DataPacket {
-    private Board board;
-    private int x;
-    private int y;
-    private GameController.D direction;
-    private String status;
+    private Board board;         // The playing board
+    private int x;               // The x position of the piece to move
+    private int y;               // The y position of the piece to move
+    private D direction = D.DL;  // The direction in which to move the piece
+    private String status = "";  // General status condition.
     
     public DataPacket() {
         
     }
     
+    /**
+     * Encode this DataPacket into a String that can be decoded into a
+     * DataPacket object by DataPacket.decode()
+     * @return Encoded String form of this DataPacket
+     */
     public String encode() {
-        String string = "";
+        String x = encodeValue("x", this.x);
+        String y = encodeValue("y", this.y);
+        String status = encodeValue("status", this.status);
+        String d = encodeValue("d", this.direction);
+        String board = encodeValue("board", this.board.encode());
         
-        String x = "<x>" + this.x + "</x>";
-        String y = "<y>" + this.y + "</y>";
-        String status = "<status>" + this.status + "</status>";
-        
-        String d = "";
-        
-        switch(direction) {
-            case UL:
-                d = "<d>ul</d>";
-                break;
-            case UR:
-                d = "<d>ur</d>";
-                break;
-            case DL:
-                d = "<d>dl</d>";
-                break;
-            case DR:
-                d = "<d>dr</d>";
-                break;
-        }
-        
-        string = x + y + status + d;
-        
-        return string;
+        return x + y + status + d + board;
     }
     
     public static DataPacket decode(String string) {
         DataPacket packet = new DataPacket();
         
-        int start = 0;
-        int end = 0;
-        
-        start = string.indexOf("<x>") + 3;
-        end = string.indexOf("</x>");
-        packet.setX(Integer.parseInt(string.substring(start, end)));
-        
-        start = string.indexOf("<y>") + 3;
-        end = string.indexOf("</y>");
-        packet.setY(Integer.parseInt(string.substring(start, end)));
-        
-        start = string.indexOf("<status>") + 8;
-        end = string.indexOf("</status>");
-        packet.setStatus(string.substring(start, end));
-        
-        //start = string.indexOf("<d>") + 3; todo
-        //end = string.indexOf("</d>");
-        //packet.setX(Integer.parseInt(string.substring(start, end)));
-        
-        
+        packet.setX(Integer.parseInt(getValueAsString(string, "x")));
+        packet.setY(Integer.parseInt(getValueAsString(string, "y")));
+        packet.setStatus(getValueAsString(string, "status"));
+        packet.setDirection(GameController.D.valueOf(getValueAsString(string, "d")));
+        packet.setBoard(Board.decode(getValueAsString(string, "board")));
         
         return packet;
+    }
+    
+    /**
+     * Encode the specified value with the specified name to retrieve later with
+     * getValueAsString()
+     * @param name The name used to retrieve the value later.
+     * @param value The value to encode
+     * @return name and value pair encoded into a String
+     */
+    private static String encodeValue(String name, Object value) {
+        if (value == null) value = "null";
+        return "<" + name + ">" + value.toString() + "</" + name + ">";
+    }
+    
+    /**
+     * Retrieve the value with the given name in the encoded String as a String.
+     * @param encodedString the DataPacket encoded as a String
+     * @param name The name of the value to retrieve
+     * @return The value of name as a String
+     */
+    private static String getValueAsString(String encodedString, String name) {
+        int start = encodedString.indexOf("<" + name +">") + name.length() + 2;
+        int end = encodedString.indexOf("</" + name +">");
+        
+        return encodedString.substring(start, end);
     }
 
     /**

@@ -5,6 +5,9 @@
  */
 package checkersonline.client;
 
+import checkersonline.Board;
+import checkersonline.DataPacket;
+import checkersonline.Space;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -28,6 +31,6 @@ public class Controller {
     }
     
     public static void main(String[] args) {
-        Controller thing = new Controller(5555);
+        new Controller(5555);
     }
 }
