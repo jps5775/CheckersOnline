@@ -5,9 +5,7 @@
  */
 package checkersonline.client;
 
-import checkersonline.Board;
-import checkersonline.DataPacket;
-import checkersonline.Space;
+import checkersonline.ReceiveThread;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -15,22 +13,26 @@ import java.net.Socket;
  *
  * @author bqb5176
  */
-public class Controller {
+public class ClientController {
     
     private Socket socket;
+    private ReceiveThread receive;
     
-    public Controller(int port) {
+    public ClientController(int port) {
         try {
             System.out.println("Trying to connect...");
             socket = new Socket("localhost", port);
             
             System.out.println("Connected.");
+            
+            receive = new ReceiveThread(socket);
+            receive.run();
         } catch (IOException ex) {
             System.out.println("Socket could not be initialized.");
         }
     }
     
     public static void main(String[] args) {
-        new Controller(5555);
+        new ClientController(5555);
     }
 }

@@ -6,20 +6,27 @@
 package checkersonline.server;
 
 import checkersonline.GameController;
+import checkersonline.ReceiveThread;
 import java.net.Socket;
 
 /**
  *
  * @author bqb5176
  */
-public class ServerController {
+public class ServerController extends Thread {
     private GameController gameController;
     private Socket redClient;
     private Socket blackClient;
     
+    private ReceiveThread redReceive;
+    private ReceiveThread blackReceive;
+    
     public ServerController() {
         gameController = new GameController();
-        
+    }
+    
+    @Override
+    public void run() {
         GetConnectionsThread getConnections = new GetConnectionsThread(5555);
         getConnections.start();
         
@@ -27,9 +34,16 @@ public class ServerController {
             redClient = getConnections.getRed();
             blackClient = getConnections.getBlack();
         }
+        
+        redReceive = new ReceiveThread(redClient);
+        blackReceive = new ReceiveThread(blackClient);
+        
+        redReceive.start();
+        blackReceive.start();
     }
     
     public static void main(String[] args) {
-        new ServerController();
+        ServerController cntl = new ServerController();
+        cntl.start();
     }
 }

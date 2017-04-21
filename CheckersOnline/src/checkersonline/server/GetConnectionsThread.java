@@ -49,9 +49,9 @@ public class GetConnectionsThread extends Thread {
             red = serverSocket.accept();
             System.out.println("Connected to " + red.getRemoteSocketAddress() + " as red.");
             
-            System.out.println("Listening on port " + serverSocket.getLocalPort() + " as black");
+            System.out.println("Listening on port " + serverSocket.getLocalPort() + " for black");
             black = serverSocket.accept();
-            System.out.println("Connected to " + red.getRemoteSocketAddress() + " for black");
+            System.out.println("Connected to " + red.getRemoteSocketAddress() + " as black");
         } catch (IOException ex) {
             Logger.getLogger(GetConnectionsThread.class.getName()).log(Level.SEVERE, null, ex);
         }
