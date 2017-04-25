@@ -54,7 +54,7 @@ public class ServerController extends Thread {
     public void run() {
         this.running = true;
         
-        GetConnectionsThread getConnections = new GetConnectionsThread(5555);
+        GetConnectionsThread getConnections = new GetConnectionsThread("localhost", 5555);
         getConnections.start();
         
         while (redClient == null && running) {

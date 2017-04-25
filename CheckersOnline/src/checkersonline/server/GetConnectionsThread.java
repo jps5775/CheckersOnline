@@ -18,6 +18,7 @@ import java.util.logging.Logger;
  * @author bqb5176
  */
 public class GetConnectionsThread extends Thread {
+    private String host;
     private int port;
     
     private Socket red = null;
@@ -25,7 +26,8 @@ public class GetConnectionsThread extends Thread {
     
     private ServerSocket serverSocket;
     
-    public GetConnectionsThread(int port) {
+    public GetConnectionsThread(String host, int port) {
+        this.host = host;
         this.port = port;
     }
     
@@ -47,7 +49,7 @@ public class GetConnectionsThread extends Thread {
     @Override
     public void run() {
         try {
-            InetAddress addr = InetAddress.getByName("localhost");
+            InetAddress addr = InetAddress.getByName(host);
             serverSocket = new ServerSocket(port, 0, addr);
         } catch (UnknownHostException ex) {
             Logger.getLogger(GetConnectionsThread.class.getName()).log(Level.SEVERE, null, ex);
