@@ -5,8 +5,10 @@
  */
 package checkersonline.client;
 
+import checkersonline.DataPacket;
 import checkersonline.ReceiveThread;
 import checkersonline.SendThread;
+import checkersonline.Space.Piece;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -22,6 +24,8 @@ public class ClientController extends Thread {
     
     private ReceiveThread receive;
     private SendThread send;
+    
+    private Piece me;
     
     public ClientController(int port) {
         this.port = port;
@@ -42,7 +46,7 @@ public class ClientController extends Thread {
     public void run() {
         this.running = true;
         
-        try {
+        try {  // Connect
             System.out.println("Trying to connect...");
             socket = new Socket("localhost", port);
             
@@ -57,10 +61,25 @@ public class ClientController extends Thread {
             System.out.println("Socket could not be initialized.");
         }
         
-        while(running) {
+        System.out.println("Starting game...");
+        
+        while(running) {  // Game Loop
+            DataPacket packet;
+            
             if (receive.hasNewData()) {
-                System.out.println(receive.latestPacket().encode());
+                packet = receive.latestPacket();
+                
+                if (packet.getTurn() == Piece.NONE) { // Game hasn't started yet. Get color.
+                    me = packet.getYou();
+                    
+                    System.out.println("Me: " + me);
+                }
+                else if (packet.getTurn() == me) {
+                    
+                }
             }
+            
+            
             
             if (!receive.isAlive() || !send.isAlive()) {
                 this.quit();

@@ -25,17 +25,17 @@ public class ReceiveThread extends Thread {
     }
     
     /**
-     * @return True if a new data packet has been recieved from the connection
+     * @return True if a new data packet has been received from the connection
      * since the last time that latestPacket() was called.
      */
-    public boolean hasNewData() {
+    public synchronized boolean hasNewData() {
         return hasNew;
     }
     
     /**
-     * @return The lastest data packet recieved from the connection.
+     * @return The latest data packet received from the connection.
      */
-    public DataPacket latestPacket() {
+    public synchronized DataPacket latestPacket() {
         hasNew = false;
         return latest;
     }
@@ -63,8 +63,10 @@ public class ReceiveThread extends Thread {
                     DataInputStream in = new DataInputStream(connection.getInputStream());
                     String data = in.readUTF();
 
-                    latest = DataPacket.decode(data);
-                    hasNew = true;
+                    synchronized (this) {
+                        latest = DataPacket.decode(data);
+                        hasNew = true;
+                    }
                 } catch (IOException ex) {
                     System.out.println("Exception while recieveing data. Was the socket closed?");
                     quit();

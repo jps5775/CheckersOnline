@@ -17,8 +17,9 @@ public class DataPacket {
     private int x;               // The x position of the piece to move
     private int y;               // The y position of the piece to move
     private D direction = D.DL;  // The direction in which to move the piece
-    private Piece turn = Piece.RED;
-    private Piece winner = Piece.BLACK;
+    private Piece turn = Piece.NONE;
+    private Piece winner = Piece.NONE;
+    private Piece you = Piece.NONE;
     
     public DataPacket() {
         
@@ -35,13 +36,14 @@ public class DataPacket {
         String d = encodeValue("d", this.direction);
         String turn = encodeValue("turn", this.turn);
         String winner = encodeValue("winner", this.winner);
+        String you = encodeValue("you", this.you);
         String board = "";
         
         if (this.board != null) {
             board = encodeValue("board", this.board.encode());
         }
         
-        return x + y + d + board + turn + winner;
+        return x + y + d + board + turn + winner + you;
     }
     
     public static DataPacket decode(String string) {
@@ -52,6 +54,7 @@ public class DataPacket {
         packet.setDirection(GameController.D.valueOf(getValueAsString(string, "d")));
         packet.setTurn(Piece.valueOf(getValueAsString(string, "turn")));
         packet.setWinner(Piece.valueOf(getValueAsString(string, "winner")));
+        packet.setWinner(Piece.valueOf(getValueAsString(string, "you")));
         packet.setBoard(Board.decode(getValueAsString(string, "board")));
         
         return packet;
@@ -156,5 +159,13 @@ public class DataPacket {
     
     public void setWinner(Piece piece) {
         this.winner = piece;
+    }
+    
+    public Piece getYou() {
+        return this.you;
+    }
+    
+    public void setYou(Piece piece) {
+        this.you = piece;
     }
 }

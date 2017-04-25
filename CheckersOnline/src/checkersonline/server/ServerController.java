@@ -9,6 +9,7 @@ import checkersonline.DataPacket;
 import checkersonline.GameController;
 import checkersonline.ReceiveThread;
 import checkersonline.SendThread;
+import checkersonline.Space.Piece;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -77,14 +78,34 @@ public class ServerController extends Thread {
         redSend.start();
         blackSend.start();
         
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException ex) {
-            
-        }
+        // Tell the clients their color
+        DataPacket red = new DataPacket();
+        red.setYou(Piece.RED);
+        redSend.sendPacket(red);
         
-        System.out.println("Sending packet...");
-        redSend.sendPacket(new DataPacket());
+        DataPacket black = new DataPacket();
+        black.setYou(Piece.BLACK);
+        blackSend.sendPacket(black);
+        
+        // Game loop
+        
+        while (running) {
+            Piece turn = gameController.getTurn();
+            
+            // Ask client for move.
+            DataPacket packet = new DataPacket();
+            packet.setTurn(turn);
+            packet.setBoard(gameController.getBoard());
+            
+            switch (turn) {
+                case RED:
+                    redSend.sendPacket(packet);
+                    break;
+                case BLACK:
+                    blackSend.sendPacket(packet);
+                    break;
+            }
+        }
     }
     
     public static void main(String[] args) {

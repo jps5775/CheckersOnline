@@ -5,11 +5,15 @@
  */
 package checkersonline;
 
+import checkersonline.Space.Piece;
+
 /**
  * Controls a checkers board.
  * @author JoeSema
  */
 public class GameController {
+    
+    private Piece turn = Piece.RED;
     
     /**
      * This enumeration defines all the directions that a piece can move in.
@@ -80,6 +84,9 @@ public class GameController {
         if (current.getPiece() == Space.Piece.NONE) {
             success = false;  // The space specified doesn't have a piece in it.
         }
+        else if (current.getPiece() != turn) { // Wrong color piece
+            success = false;
+        }
         else if (desired == null) {
             success = false;  // Can't move this way because it's off the board.
         }
@@ -122,6 +129,14 @@ public class GameController {
             }
         }
         
+        if (success == true) {
+            if (turn == Piece.RED) {
+                turn = Piece.BLACK;
+            } else {
+                turn = Piece.RED;
+            }
+        }
+        
         return success;
     }
     
@@ -130,5 +145,9 @@ public class GameController {
      */
     public Board getBoard() {
         return gameBoard;
+    }
+    
+    public Piece getTurn() {
+        return turn;
     }
 }
