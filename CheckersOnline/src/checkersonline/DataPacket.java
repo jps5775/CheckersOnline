@@ -6,6 +6,7 @@
 package checkersonline;
 
 import checkersonline.GameController.D;
+import checkersonline.Space.Piece;
 
 /**
  *
@@ -16,7 +17,8 @@ public class DataPacket {
     private int x;               // The x position of the piece to move
     private int y;               // The y position of the piece to move
     private D direction = D.DL;  // The direction in which to move the piece
-    private String status = "";  // General status condition.
+    private Piece turn = Piece.RED;
+    private Piece winner = Piece.BLACK;
     
     public DataPacket() {
         
@@ -30,15 +32,16 @@ public class DataPacket {
     public String encode() {
         String x = encodeValue("x", this.x);
         String y = encodeValue("y", this.y);
-        String status = encodeValue("status", this.status);
         String d = encodeValue("d", this.direction);
+        String turn = encodeValue("turn", this.turn);
+        String winner = encodeValue("winner", this.winner);
         String board = "";
         
         if (this.board != null) {
             board = encodeValue("board", this.board.encode());
         }
         
-        return x + y + status + d + board;
+        return x + y + d + board + turn + winner;
     }
     
     public static DataPacket decode(String string) {
@@ -46,8 +49,9 @@ public class DataPacket {
         
         packet.setX(Integer.parseInt(getValueAsString(string, "x")));
         packet.setY(Integer.parseInt(getValueAsString(string, "y")));
-        packet.setStatus(getValueAsString(string, "status"));
         packet.setDirection(GameController.D.valueOf(getValueAsString(string, "d")));
+        packet.setTurn(Piece.valueOf(getValueAsString(string, "turn")));
+        packet.setWinner(Piece.valueOf(getValueAsString(string, "winner")));
         packet.setBoard(Board.decode(getValueAsString(string, "board")));
         
         return packet;
@@ -137,18 +141,20 @@ public class DataPacket {
     public void setDirection(GameController.D direction) {
         this.direction = direction;
     }
-
-    /**
-     * @return the status
-     */
-    public String getStatus() {
-        return status;
+    
+    public Piece getTurn() {
+        return this.turn;
     }
-
-    /**
-     * @param status the status to set
-     */
-    public void setStatus(String status) {
-        this.status = status;
+    
+    public void setTurn(Piece piece) {
+        this.turn = piece;
+    }
+    
+    public Piece getWinner() {
+        return this.winner;
+    }
+    
+    public void setWinner(Piece piece) {
+        this.winner = piece;
     }
 }
