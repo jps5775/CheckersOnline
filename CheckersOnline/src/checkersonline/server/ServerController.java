@@ -13,8 +13,6 @@ import checkersonline.SendThread;
 import checkersonline.Space.Piece;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -52,6 +50,10 @@ public class ServerController extends Thread {
         } catch (IOException ex) {
             System.out.println("Black connection closed.");
         }
+    }
+    
+    public boolean threadsAlive() {
+        return redReceive.isAlive() && redSend.isAlive() && blackReceive.isAlive() && blackSend.isAlive();
     }
     
     @Override
@@ -125,24 +127,36 @@ public class ServerController extends Thread {
             do {
                 switch (turn) {
                     case RED:
-                        while (!redReceive.hasNewData()) {   // Just waiting...
+                        while (!redReceive.hasNewData() && threadsAlive()) {   // Just waiting...
                             try {
                                 Thread.sleep(500);
                             } catch (InterruptedException ex) {
                                 quit();
                             }
                         }
-                        nextTurn = redReceive.getNextPacket();
+                        
+                        if (!threadsAlive()) {
+                            quit();
+                        } else {
+                            nextTurn = redReceive.getNextPacket();
+                        }
+                        
                         break;
                     case BLACK:
-                        while (!blackReceive.hasNewData()) { // waiting waiting waiting...
+                        while (!blackReceive.hasNewData() && threadsAlive()) { // waiting waiting waiting...
                             try {
                                 Thread.sleep(500);
                             } catch (InterruptedException ex) {
                                 quit();
                             }
                         }
-                        nextTurn = blackReceive.getNextPacket();
+                        
+                        if (!threadsAlive()) {
+                            quit();
+                        } else {
+                            nextTurn = blackReceive.getNextPacket();
+                        }
+                        
                         break;
                 }
 
@@ -167,7 +181,7 @@ public class ServerController extends Thread {
                             break;
                     }
                 }
-            } while (!success);
+            } while (!success && running);
             
             // Send updated board.
             DataPacket board = new DataPacket();
@@ -181,8 +195,24 @@ public class ServerController extends Thread {
             blackSend.sendPacket(board);
             
             // Check winner
-            if (gameController.checkWinner() != Piece.NONE) {
-                // todo Tell both players the winner.
+            Piece winner = gameController.checkWinner();
+            if (winner != Piece.NONE) { // The game is over.
+                DataPacket gameOver = new DataPacket();
+                gameOver.setStatus(DataPacket.GAME_OVER);
+                gameOver.setBoard(gameController.getBoard());
+                gameOver.setWinner(winner);
+                
+                gameOver.setYou(Piece.RED);
+                redSend.sendPacket(gameOver);
+                
+                gameOver.setYou(Piece.BLACK);
+                blackSend.sendPacket(gameOver);
+                
+                quit();
+            }
+            
+            if (!threadsAlive()) {
+                quit();
             }
         }
     }

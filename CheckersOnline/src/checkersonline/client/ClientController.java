@@ -95,17 +95,27 @@ public class ClientController extends Thread {
                     }
                 }
                 
-                if (packet.getStatus() == DataPacket.NEED_MOVE ||   // It's my turn
-                    packet.getStatus() == DataPacket.BAD_MOVE) {    // or my move was bad.
-                    if (this.eventHandler != null) {
-                        this.eventHandler.onMyTurn(packet.getStatus() == DataPacket.BAD_MOVE);
-                    }
-                }
-                
-                else if(packet.getStatus() == DataPacket.NEW_BOARD) {
-                    if (this.eventHandler != null) {
-                        this.eventHandler.onNewBoard(packet.getBoard());
-                    }
+                switch (packet.getStatus()) {
+                    case DataPacket.NEED_MOVE: // It's my turn
+                    case DataPacket.BAD_MOVE:  // or my move was bad.
+                        if (this.eventHandler != null) {
+                            this.eventHandler.onMyTurn(packet.getStatus() == DataPacket.BAD_MOVE);
+                        }
+                        break;
+                    case DataPacket.NEW_BOARD: // Updated board received.
+                        if (this.eventHandler != null) {
+                            this.eventHandler.onNewBoard(packet.getBoard());
+                        }
+                        break;
+                    case DataPacket.GAME_OVER: // Game is over and there is a winner.
+                        if (this.eventHandler != null) {
+                            this.eventHandler.onGameOver(packet.getWinner());
+                        }
+                        
+                        quit();
+                        break;
+                    default:
+                        break;
                 }
             }
             

@@ -86,7 +86,7 @@ public class CLI implements ClientEventHandler {
 
     @Override
     public void onGameOver(Space.Piece winner) {
-        
+        System.out.println("GAME OVER. The winner is " + winner + "!");
     }
 
     @Override
