@@ -54,7 +54,7 @@ public class DataPacket {
         packet.setDirection(GameController.D.valueOf(getValueAsString(string, "d")));
         packet.setTurn(Piece.valueOf(getValueAsString(string, "turn")));
         packet.setWinner(Piece.valueOf(getValueAsString(string, "winner")));
-        packet.setWinner(Piece.valueOf(getValueAsString(string, "you")));
+        packet.setYou(Piece.valueOf(getValueAsString(string, "you")));
         packet.setBoard(Board.decode(getValueAsString(string, "board")));
         
         return packet;

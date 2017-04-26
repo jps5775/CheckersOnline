@@ -105,6 +105,13 @@ public class ServerController extends Thread {
                     blackSend.sendPacket(packet);
                     break;
             }
+            
+            
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException ex) {
+                
+            }
         }
     }
     

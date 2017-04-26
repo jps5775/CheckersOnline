@@ -67,7 +67,8 @@ public class ClientController extends Thread {
             DataPacket packet;
             
             if (receive.hasNewData()) {
-                packet = receive.latestPacket();
+                packet = receive.getNextPacket();
+                System.out.println(packet.encode());
                 
                 if (packet.getTurn() == Piece.NONE) { // Game hasn't started yet. Get color.
                     me = packet.getYou();

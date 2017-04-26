@@ -8,6 +8,7 @@ package checkersonline;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.LinkedList;
 
 /**
  * A thread that sends data over the specified socket connection.
@@ -18,13 +19,18 @@ public class SendThread extends Thread {
     private DataPacket toSend;        // A data packet that needs sent
     private boolean running;          // Flag indicates this thread should keep running.
     
+    private final LinkedList<DataPacket> packets; // All packets to send.
+    
     public SendThread(Socket connection) {
         this.connection = connection;
         this.running = false;
+        this.packets = new LinkedList();
     }
     
     public void sendPacket (DataPacket toSend) {
-        this.toSend = toSend;
+        synchronized (packets) {
+            this.packets.add(toSend);
+        }
     }
     
     public void quit() {
@@ -42,13 +48,18 @@ public class SendThread extends Thread {
         this.running = true;
         
         while(running) {
-            if (connection != null && toSend != null) {
-                try {
-                    new DataOutputStream(connection.getOutputStream()).writeUTF(toSend.encode());
-                    toSend = null;  // Packet has been sent so we can get rid of it.
-                } catch (IOException ex) {
-                    System.out.println("Exception while sending data. Was the socket closed?");
-                    quit();
+            if (connection != null && !connection.isClosed()) {
+                while (packets.size() > 0 && running) {
+                    try {
+                        synchronized (packets) {
+                            DataPacket toSend = packets.pop();
+                            new DataOutputStream(connection.getOutputStream()).writeUTF(toSend.encode());
+                            System.out.println("Sending packet... " + toSend.encode());
+                        }
+                    } catch (IOException ex) {
+                        System.out.println("Exception while sending data. Was the socket closed?");
+                        quit();
+                    }
                 }
             }
             

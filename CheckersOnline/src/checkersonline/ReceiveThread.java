@@ -8,6 +8,7 @@ package checkersonline;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.LinkedList;
 
 /**
  * A thread that receives data over a specified socket connection.
@@ -19,25 +20,27 @@ public class ReceiveThread extends Thread {
     private boolean hasNew;           // Flag indicates that a new packet as been received.
     private boolean running;          // Flag indicates this thread should keep running.
     
+    private LinkedList<DataPacket> packets;  // Packets received and not get accessed.
+    
     public ReceiveThread(Socket connection) {
         this.connection = connection;
         this.running = false;
+        this.packets = new LinkedList();
     }
     
     /**
      * @return True if a new data packet has been received from the connection
      * since the last time that latestPacket() was called.
      */
-    public synchronized boolean hasNewData() {
-        return hasNew;
+    public boolean hasNewData() {
+        return packets.size() > 0;
     }
     
     /**
-     * @return The latest data packet received from the connection.
+     * @return The next unseen packet received. Once returned, the packet is removed.
      */
-    public synchronized DataPacket latestPacket() {
-        hasNew = false;
-        return latest;
+    public DataPacket getNextPacket() {
+        return packets.pop();
     }
     
     /**
@@ -63,12 +66,9 @@ public class ReceiveThread extends Thread {
                     DataInputStream in = new DataInputStream(connection.getInputStream());
                     String data = in.readUTF();
 
-                    synchronized (this) {
-                        latest = DataPacket.decode(data);
-                        hasNew = true;
-                    }
+                    packets.add(DataPacket.decode(data));
                 } catch (IOException ex) {
-                    System.out.println("Exception while recieveing data. Was the socket closed?");
+                    System.out.println("Exception while receiveing data. Was the socket closed?");
                     quit();
                 }
             }
