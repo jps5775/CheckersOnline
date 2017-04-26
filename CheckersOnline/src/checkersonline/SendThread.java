@@ -54,7 +54,6 @@ public class SendThread extends Thread {
                         synchronized (packets) {
                             DataPacket toSend = packets.pop();
                             new DataOutputStream(connection.getOutputStream()).writeUTF(toSend.encode());
-                            System.out.println("Sending packet... " + toSend.encode());
                         }
                     } catch (IOException ex) {
                         System.out.println("Exception while sending data. Was the socket closed?");

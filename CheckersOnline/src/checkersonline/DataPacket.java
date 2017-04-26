@@ -13,13 +13,20 @@ import checkersonline.Space.Piece;
  * @author bqb5176
  */
 public class DataPacket {
+    public static final int NEW_BOARD = 0;
+    public static final int BAD_MOVE = 1;
+    public static final int NEED_MOVE = 2;
+    public static final int IS_MOVE = 3;
+    public static final int GAME_OVER = 4;
+    
     private Board board;         // The playing board
     private int x;               // The x position of the piece to move
     private int y;               // The y position of the piece to move
     private D direction = D.DL;  // The direction in which to move the piece
-    private Piece turn = Piece.NONE;
-    private Piece winner = Piece.NONE;
-    private Piece you = Piece.NONE;
+    private Piece turn = Piece.NONE;   // Whose turn it is.
+    private Piece winner = Piece.NONE; // Who the winner is.
+    private Piece you = Piece.NONE;    // Who you are.
+    private int status = NEW_BOARD;    // Status code.
     
     public DataPacket() {
         
@@ -37,13 +44,14 @@ public class DataPacket {
         String turn = encodeValue("turn", this.turn);
         String winner = encodeValue("winner", this.winner);
         String you = encodeValue("you", this.you);
+        String status = encodeValue("status", this.status);
         String board = "";
         
         if (this.board != null) {
             board = encodeValue("board", this.board.encode());
         }
         
-        return x + y + d + board + turn + winner + you;
+        return x + y + d + board + turn + winner + you + status;
     }
     
     public static DataPacket decode(String string) {
@@ -56,6 +64,7 @@ public class DataPacket {
         packet.setWinner(Piece.valueOf(getValueAsString(string, "winner")));
         packet.setYou(Piece.valueOf(getValueAsString(string, "you")));
         packet.setBoard(Board.decode(getValueAsString(string, "board")));
+        packet.setStatus(Integer.parseInt(getValueAsString(string, "status")));
         
         return packet;
     }
@@ -167,5 +176,13 @@ public class DataPacket {
     
     public void setYou(Piece piece) {
         this.you = piece;
+    }
+    
+    public int getStatus() {
+        return this.status;
+    }
+    
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

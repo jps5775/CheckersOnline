@@ -35,6 +35,13 @@ public class GetConnectionsThread extends Thread {
      * @return The client socket belonging to the red player.
      */
     public synchronized Socket getRed() {
+        while (red == null) {
+            try {
+                this.wait();
+            } catch (InterruptedException ex) {
+                
+            }
+        }
         return red;
     }
     
@@ -43,6 +50,13 @@ public class GetConnectionsThread extends Thread {
      * @return The client socket belonging to the black player.
      */
     public synchronized Socket getBlack() {
+        while (black == null) {
+            try {
+                this.wait();
+            } catch (InterruptedException ex) {
+                
+            }
+        }
         return black;
     }
     
@@ -63,12 +77,16 @@ public class GetConnectionsThread extends Thread {
                     System.out.println("Listening on port " + serverSocket.getLocalPort() + " for red");
                     red = serverSocket.accept();
                     System.out.println("Connected to " + red.getRemoteSocketAddress() + " as red.");
+                    
+                    this.notifyAll();
                 }
 
                 synchronized(this) { // These need to be synchronized or else the program might get stuck.
                     System.out.println("Listening on port " + serverSocket.getLocalPort() + " for black");
                     black = serverSocket.accept();
                     System.out.println("Connected to " + red.getRemoteSocketAddress() + " as black");
+                    
+                    this.notifyAll();
                 }
             } catch (IOException ex) {
                 Logger.getLogger(GetConnectionsThread.class.getName()).log(Level.SEVERE, null, ex);

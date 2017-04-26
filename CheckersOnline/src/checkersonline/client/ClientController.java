@@ -5,7 +5,9 @@
  */
 package checkersonline.client;
 
+import checkersonline.Board;
 import checkersonline.DataPacket;
+import checkersonline.GameController.D;
 import checkersonline.ReceiveThread;
 import checkersonline.SendThread;
 import checkersonline.Space.Piece;
@@ -19,17 +21,33 @@ import java.net.Socket;
 public class ClientController extends Thread {
     private boolean running;
     
+    private String host;
     private int port;
     private Socket socket;
     
     private ReceiveThread receive;
     private SendThread send;
     
-    private Piece me;
+    private Piece me = Piece.NONE;
+    private ClientEventHandler eventHandler;
     
-    public ClientController(int port) {
+    public ClientController(String host, int port) {
+        this.host = host;
         this.port = port;
         this.running = false;
+    }
+    
+    public void setEventHandler(ClientEventHandler eventHandler) {
+        this.eventHandler = eventHandler;
+    }
+    
+    public void sendMove(int x, int y, D direction) {
+        DataPacket move = new DataPacket();
+        move.setStatus(DataPacket.IS_MOVE);
+        move.setX(x);
+        move.setY(y);
+        move.setDirection(direction);
+        send.sendPacket(move);
     }
     
     public void quit() {
@@ -48,7 +66,7 @@ public class ClientController extends Thread {
         
         try {  // Connect
             System.out.println("Trying to connect...");
-            socket = new Socket("localhost", port);
+            socket = new Socket(host, port);
             
             System.out.println("Connected.");
             
@@ -68,19 +86,28 @@ public class ClientController extends Thread {
             
             if (receive.hasNewData()) {
                 packet = receive.getNextPacket();
-                System.out.println(packet.encode());
                 
-                if (packet.getTurn() == Piece.NONE) { // Game hasn't started yet. Get color.
+                if (me == Piece.NONE) { // Game hasn't started yet. Get color.
                     me = packet.getYou();
                     
-                    System.out.println("Me: " + me);
+                    if (this.eventHandler != null) {
+                        this.eventHandler.onColorAssigned(me);
+                    }
                 }
-                else if (packet.getTurn() == me) {
-                    
+                
+                if (packet.getStatus() == DataPacket.NEED_MOVE ||   // It's my turn
+                    packet.getStatus() == DataPacket.BAD_MOVE) {    // or my move was bad.
+                    if (this.eventHandler != null) {
+                        this.eventHandler.onMyTurn(packet.getStatus() == DataPacket.BAD_MOVE);
+                    }
+                }
+                
+                else if(packet.getStatus() == DataPacket.NEW_BOARD) {
+                    if (this.eventHandler != null) {
+                        this.eventHandler.onNewBoard(packet.getBoard());
+                    }
                 }
             }
-            
-            
             
             if (!receive.isAlive() || !send.isAlive()) {
                 this.quit();
@@ -89,7 +116,8 @@ public class ClientController extends Thread {
     }
     
     public static void main(String[] args) {
-        ClientController cntl = new ClientController(5555);
+        ClientController cntl = new ClientController("localhost", 5555);
+        CLI cli = new CLI(cntl);
         cntl.start();
     }
 }
