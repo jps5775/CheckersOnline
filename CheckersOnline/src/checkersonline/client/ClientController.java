@@ -126,8 +126,14 @@ public class ClientController extends Thread {
     }
     
     public static void main(String[] args) {
+        
         ClientController cntl = new ClientController("localhost", 5555);
-        CLI cli = new CLI(cntl);
+        //CLI cli = new CLI(cntl);
+        
+        GUI gui = new GUI(cntl);
+        gui.setVisible(true);
+        
         cntl.start();
+        
     }
 }
