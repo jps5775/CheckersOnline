@@ -5,7 +5,6 @@
  */
 package checkersonline.client;
 
-import checkersonline.Board;
 import checkersonline.DataPacket;
 import checkersonline.GameController.D;
 import checkersonline.ReceiveThread;
