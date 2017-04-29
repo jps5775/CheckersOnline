@@ -21,6 +21,8 @@ import java.net.Socket;
 public class ClientController extends Thread {
     private boolean running;
     
+    private String username;
+    
     private String host;
     private int port;
     private Socket socket;
@@ -31,9 +33,10 @@ public class ClientController extends Thread {
     private Piece me = Piece.NONE;
     private ClientEventHandler eventHandler;
     
-    public ClientController(String host, int port) {
+    public ClientController(String host, int port, String username) {
         this.host = host;
         this.port = port;
+        this.username = username;
         this.running = false;
     }
     
@@ -48,6 +51,10 @@ public class ClientController extends Thread {
         move.setY(y);
         move.setDirection(direction);
         send.sendPacket(move);
+    }
+    
+    public String getUsername() {
+        return username;
     }
     
     public void quit() {
@@ -77,6 +84,7 @@ public class ClientController extends Thread {
             send.start();
         } catch (IOException ex) {
             System.out.println("Socket could not be initialized.");
+            running = false;
         }
         
         System.out.println("Starting game...");
@@ -126,14 +134,18 @@ public class ClientController extends Thread {
     }
     
     public static void main(String[] args) {
-        
-        ClientController cntl = new ClientController("localhost", 5555);
-        //CLI cli = new CLI(cntl);
-        
-        GUI gui = new GUI(cntl);
-        gui.setVisible(true);
-        
-        cntl.start();
-        
+        UsernameGUI usernameGUI = new UsernameGUI() {
+            @Override
+            public void onSubmit(String username) {
+                ClientController cntl = new ClientController("localhost", 5555,
+                                                             username);
+                //CLI cli = new CLI(cntl);
+
+                GUI gui = new GUI(cntl);
+                gui.setVisible(true);
+
+                cntl.start();
+            }
+        };
     }
 }
