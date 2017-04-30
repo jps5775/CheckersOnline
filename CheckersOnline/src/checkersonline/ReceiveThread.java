@@ -65,13 +65,18 @@ public class ReceiveThread extends Thread {
                 try {
                     DataInputStream in = new DataInputStream(connection.getInputStream());
                     String data = in.readUTF();
-
-                    packets.add(DataPacket.decode(data));
+                    DataPacket p = DataPacket.decode(data);
+                    packets.add(p);
+                    onReceive(p);
                 } catch (IOException ex) {
                     System.out.println("Exception while receiveing data. Was the socket closed?");
                     quit();
                 }
             }
         }
+    }
+    
+    public void onReceive(DataPacket packet) {
+        // Override for event handling
     }
 }

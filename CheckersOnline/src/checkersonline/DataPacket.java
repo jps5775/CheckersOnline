@@ -13,7 +13,7 @@ import checkersonline.Space.Piece;
  * @author bqb5176
  */
 public class DataPacket {
-    public static final int NEW_BOARD = 0;
+    public static final int UPDATE = 0;
     public static final int BAD_MOVE = 1;
     public static final int NEED_MOVE = 2;
     public static final int IS_MOVE = 3;
@@ -25,8 +25,11 @@ public class DataPacket {
     private D direction = D.DL;  // The direction in which to move the piece
     private Piece turn = Piece.NONE;   // Whose turn it is.
     private Piece winner = Piece.NONE; // Who the winner is.
-    private Piece you = Piece.NONE;    // Who you are.
-    private int status = NEW_BOARD;    // Status code.
+    private Piece color = Piece.NONE;  // What color is the client.
+    private int status = UPDATE;    // Status code.
+    private String username;           // Username submitted by client.
+    private String red;                // RED's username
+    private String black;              // BLACK's username
     
     public DataPacket() {
         
@@ -43,7 +46,7 @@ public class DataPacket {
         String d = encodeValue("d", this.direction);
         String turn = encodeValue("turn", this.turn);
         String winner = encodeValue("winner", this.winner);
-        String you = encodeValue("you", this.you);
+        String color = encodeValue("color", this.color);
         String status = encodeValue("status", this.status);
         String board = "";
         
@@ -51,7 +54,10 @@ public class DataPacket {
             board = encodeValue("board", this.board.encode());
         }
         
-        return x + y + d + board + turn + winner + you + status;
+        return x + y + d + board + turn + winner + color + status
+               + encodeValue("username", this.username)
+               + encodeValue("red", this.red)
+               + encodeValue("black", this.black);
     }
     
     public static DataPacket decode(String string) {
@@ -62,9 +68,12 @@ public class DataPacket {
         packet.setDirection(GameController.D.valueOf(getValueAsString(string, "d")));
         packet.setTurn(Piece.valueOf(getValueAsString(string, "turn")));
         packet.setWinner(Piece.valueOf(getValueAsString(string, "winner")));
-        packet.setYou(Piece.valueOf(getValueAsString(string, "you")));
+        packet.setColor(Piece.valueOf(getValueAsString(string, "color")));
         packet.setBoard(Board.decode(getValueAsString(string, "board")));
         packet.setStatus(Integer.parseInt(getValueAsString(string, "status")));
+        packet.setUsername(getValueAsString(string, "username"));
+        packet.setRedUsername(getValueAsString(string, "red"));
+        packet.setBlackUsername(getValueAsString(string, "black"));
         
         return packet;
     }
@@ -77,7 +86,7 @@ public class DataPacket {
      * @return name and value pair encoded into a String
      */
     private static String encodeValue(String name, Object value) {
-        if (value == null) value = "null";
+        if (value == null) value = "";
         return "<" + name + ">" + value.toString() + "</" + name + ">";
     }
     
@@ -170,12 +179,12 @@ public class DataPacket {
         this.winner = piece;
     }
     
-    public Piece getYou() {
-        return this.you;
+    public Piece getColor() {
+        return this.color;
     }
     
-    public void setYou(Piece piece) {
-        this.you = piece;
+    public void setColor(Piece piece) {
+        this.color = piece;
     }
     
     public int getStatus() {
@@ -184,5 +193,29 @@ public class DataPacket {
     
     public void setStatus(int status) {
         this.status = status;
+    }
+    
+    public String getUsername() {
+        return this.username;
+    }
+    
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    
+    public String getRedUsername() {
+        return this.red;
+    }
+    
+    public void setRedUsername(String username) {
+        this.red = username;
+    }
+    
+    public String getBlackUsername() {
+        return this.black;
+    }
+    
+    public void setBlackUsername(String username) {
+        this.black = username;
     }
 }

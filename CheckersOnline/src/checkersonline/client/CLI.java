@@ -94,4 +94,9 @@ public class CLI implements ClientEventHandler {
         System.out.println("Latest board:");
         System.out.println(board.printBoard());
     }
+
+    @Override
+    public void onOpponentDiscovered(String opponent) {
+        
+    }
 }
