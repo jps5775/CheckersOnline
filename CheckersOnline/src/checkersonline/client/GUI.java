@@ -9,7 +9,6 @@ import checkersonline.Board;
 import checkersonline.GameController;
 import checkersonline.Space;
 import java.awt.Color;
-import javax.swing.text.DefaultCaret;
 
 /**
  *
@@ -17,19 +16,25 @@ import javax.swing.text.DefaultCaret;
  */
 public class GUI extends javax.swing.JFrame implements ClientEventHandler {
 
+    private ClientController cntl;
+    private boolean myTurn;
+    
     /**
      * Creates new form GUI
+     * @param cntl Client controller
      */
-    
-    private ClientController cntl;
-    
     public GUI(ClientController cntl) {
         initComponents();
         
         this.cntl = cntl;
         this.cntl.setEventHandler(this);
+        this.myTurn = false;
         
         this.usernameLabel.setText(this.cntl.getUsername());
+        this.colorLabel.setText("");
+        this.opponentLabel.setText("");
+        
+        this.enableButtons(false);
     }
 
     /**
@@ -41,9 +46,6 @@ public class GUI extends javax.swing.JFrame implements ClientEventHandler {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel7 = new javax.swing.JLabel();
-        jLabel17 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
         jButton1 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         output = new javax.swing.JTextArea();
@@ -124,6 +126,8 @@ public class GUI extends javax.swing.JFrame implements ClientEventHandler {
         usernameLabel = new javax.swing.JLabel();
         colorLabel = new javax.swing.JLabel();
         turnLabel = new javax.swing.JLabel();
+        jLabel23 = new javax.swing.JLabel();
+        opponentLabel = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
@@ -142,15 +146,8 @@ public class GUI extends javax.swing.JFrame implements ClientEventHandler {
         jLabel22 = new javax.swing.JLabel();
         statusLabel = new javax.swing.JLabel();
 
-        jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel7.setText("1");
-
-        jLabel17.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel17.setText("1");
-
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMinimumSize(new java.awt.Dimension(507, 409));
 
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -587,26 +584,36 @@ public class GUI extends javax.swing.JFrame implements ClientEventHandler {
 
         jLabel4.setText("Color:");
 
+        usernameLabel.setText("temp");
+
+        colorLabel.setText("temp");
+
         turnLabel.setForeground(new java.awt.Color(204, 204, 204));
         turnLabel.setText("Your turn!");
+
+        jLabel23.setText("Opponent:");
+
+        opponentLabel.setText("temp");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(53, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(turnLabel)
-                .addContainerGap(54, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3)
-                    .addComponent(jLabel4))
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel23))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(colorLabel)
-                    .addComponent(usernameLabel))
-                .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(opponentLabel)
+                    .addComponent(usernameLabel)
+                    .addComponent(colorLabel))
+                .addContainerGap(80, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -619,7 +626,11 @@ public class GUI extends javax.swing.JFrame implements ClientEventHandler {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(colorLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 43, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel23)
+                    .addComponent(opponentLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
                 .addComponent(turnLabel)
                 .addContainerGap())
         );
@@ -1321,37 +1332,63 @@ public class GUI extends javax.swing.JFrame implements ClientEventHandler {
         }
     }
     
+    private synchronized void enableButtons(boolean enabled) {
+        this.ul.setEnabled(enabled);
+        this.ur.setEnabled(enabled);
+        this.dl.setEnabled(enabled);
+        this.dr.setEnabled(enabled);
+    }
+    
     private void ulActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ulActionPerformed
-        
-        int x = Integer.parseInt(this.x.getText());
-        int y = Integer.parseInt(this.y.getText());
-        
-        cntl.sendMove(x, y, GameController.D.UL);
-        setTurnLabel(false);
+        if (myTurn) {
+            int x = Integer.parseInt(this.x.getText());
+            int y = Integer.parseInt(this.y.getText());
+
+            cntl.sendMove(x, y, GameController.D.UL);
+            setTurnLabel(false);
+            myTurn = false;
+            
+            this.enableButtons(false);
+        }
     }//GEN-LAST:event_ulActionPerformed
 
     private void urActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_urActionPerformed
-        int x = Integer.parseInt(this.x.getText());
-        int y = Integer.parseInt(this.y.getText());
-        
-        cntl.sendMove(x, y, GameController.D.UR);
-        setTurnLabel(false);
+        if (myTurn) {
+            int x = Integer.parseInt(this.x.getText());
+            int y = Integer.parseInt(this.y.getText());
+
+            cntl.sendMove(x, y, GameController.D.UR);
+            setTurnLabel(false);
+            myTurn = false;
+            
+            this.enableButtons(false);
+        }
     }//GEN-LAST:event_urActionPerformed
 
     private void dlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dlActionPerformed
-        int x = Integer.parseInt(this.x.getText());
-        int y = Integer.parseInt(this.y.getText());
-        
-        cntl.sendMove(x, y, GameController.D.DL);
-        setTurnLabel(false);
+        if (myTurn) {
+            int x = Integer.parseInt(this.x.getText());
+            int y = Integer.parseInt(this.y.getText());
+
+            cntl.sendMove(x, y, GameController.D.DL);
+            setTurnLabel(false);
+            myTurn = false;
+            
+            this.enableButtons(false);
+        }
     }//GEN-LAST:event_dlActionPerformed
 
     private void drActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_drActionPerformed
-        int x = Integer.parseInt(this.x.getText());
-        int y = Integer.parseInt(this.y.getText());
-        
-        cntl.sendMove(x, y, GameController.D.DR);
-        setTurnLabel(false);
+        if (myTurn) {
+            int x = Integer.parseInt(this.x.getText());
+            int y = Integer.parseInt(this.y.getText());
+
+            cntl.sendMove(x, y, GameController.D.DR);
+            setTurnLabel(false);
+            myTurn = false;
+            
+            this.enableButtons(false);
+        }
     }//GEN-LAST:event_drActionPerformed
 
     @Override
@@ -1359,10 +1396,18 @@ public class GUI extends javax.swing.JFrame implements ClientEventHandler {
         this.colorLabel.setText(color.toString());
         this.statusLabel.setText("Game Started.");
     }
+    
+    @Override
+    public void onOpponentDiscovered(String opponent) {
+        this.opponentLabel.setText(opponent);
+    }
 
     @Override
     public void onMyTurn(boolean badMove) {
         setTurnLabel(true);
+        myTurn = true;
+        
+        this.enableButtons(true);
     }
 
     @Override
@@ -1444,7 +1489,6 @@ public class GUI extends javax.swing.JFrame implements ClientEventHandler {
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
-    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -1453,22 +1497,22 @@ public class GUI extends javax.swing.JFrame implements ClientEventHandler {
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
-    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel22;
+    private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel opponentLabel;
     private javax.swing.JTextArea output;
     private javax.swing.JLabel statusLabel;
     private javax.swing.JLabel turnLabel;
@@ -1478,6 +1522,4 @@ public class GUI extends javax.swing.JFrame implements ClientEventHandler {
     private javax.swing.JTextField x;
     private javax.swing.JTextField y;
     // End of variables declaration//GEN-END:variables
-
-
 }

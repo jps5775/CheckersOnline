@@ -14,6 +14,7 @@ import checkersonline.Space.Piece;
  */
 public interface ClientEventHandler {
     void onColorAssigned(Piece color);
+    void onOpponentDiscovered(String opponent);
     void onMyTurn(boolean badMove);
     void onGameOver(Piece winner);
     void onNewBoard(Board board);

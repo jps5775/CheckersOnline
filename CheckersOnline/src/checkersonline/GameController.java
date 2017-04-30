@@ -32,6 +32,17 @@ public class GameController {
         this.gameBoard = new Board();
     }
     
+    public GameController(boolean quick) {
+        if (quick) {
+            this.gameBoard = new Board(true);
+            this.gameBoard.setSpace(2, 1, Piece.RED);
+            this.gameBoard.setSpace(3, 2, Piece.BLACK);
+            this.gameBoard.setSpace(5, 4, Piece.BLACK);
+        } else {
+            this.gameBoard = new Board();
+        }
+    }
+    
     /**
      * @return The winner of the game as either Space.Piece.RED or BLACK, or
      * NONE if no one has won yet.
